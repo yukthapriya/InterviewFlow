@@ -17,9 +17,8 @@ InterviewFlow provides a collaborative environment for technical interviews wher
 - preview local video, and
 - run code via an external execution service (pluggable: mocked, public Piston, self‑hosted Piston, or Judge0).
 
-This repository is structured as a real project (not just a toy demo): it has backend services, database migrations (Prisma), developer scripts, and containerization-ready artifacts.
+This repository is structured as a real project: it has backend services, database migrations (Prisma), developer scripts, and containerization-ready artifacts.
 
-Why this is a project (not a throwaway demo)
 - Design decisions are explicit (JWT auth, Prisma ORM, externalized execution for safety).
 - Infrastructure and deployment are considered: Docker + nginx patterns are supported and the codebase is structured for maintainability and testing.
 - The execution layer is pluggable and separated from the app to avoid unsafe sandboxing inside the primary process.
