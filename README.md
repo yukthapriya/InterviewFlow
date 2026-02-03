@@ -131,7 +131,6 @@ Open the frontend URL printed by Vite (commonly http://localhost:5173). Register
   - Restart backend to apply changes.
 
 ---
-![Architecture diagram](/docs/assets/architecture.svg)
 
 ## Configuration & environment variables
 
