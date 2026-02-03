@@ -12,3 +12,5 @@ button[disabled] { opacity:0.6; }
 header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .sessions-list ul { list-style:none; padding:0; }
 .sessions-list li { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0; }
+
+
