@@ -223,13 +223,13 @@ GitHub: https://github.com/yukthapriya
 
 
 Test screenshot 1  
-![Test 1](/screenshots/test%201.png)
+![Test 1](/screenshorts/test%201.png)
 
 Test screenshot 2  
-![Test 2](/screenshots/test%202.png)
+![Test 2](/screenshorts/test%202.png)
 
 Test screenshot 3  
-![Test 3](/screenshots/test%203.png)
+![Test 3](/screenshorts/test%203.png)
 ## A note for reviewers
 
 If you run into any environment issues, check the `backend/.env` file for `DATABASE_URL` and `JWT_SECRET`, and confirm the backend is running before starting the frontend. If you’d like, I can add a `docker-compose.yml` that runs the full stack for a one‑command local deployment — open an issue or PR and I’ll include it.
