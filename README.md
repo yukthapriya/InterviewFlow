@@ -2,84 +2,119 @@
 
 # InterviewFlow — Full-stack interview platform.
 
+# InterviewFlow
 
+InterviewFlow is a full‑stack collaborative coding platform designed as a production‑oriented project: session persistence, authenticated users, real‑time collaboration, chat, and an extensible code‑execution integration. It is intended as a buildable, maintainable project that demonstrates system design, engineering trade‑offs, and deployment readiness.
 
-InterviewFlow — a collaborative, real‑time coding interview platform built as a full‑stack demo.  
-Designed to showcase practical engineering skills (real‑time systems, auth, infra, and execution sandboxing) for recruiters and interviewers.
-(React + Node + Prisma + Socket.io)
+Project status: Active — development and polish in progress.
+
+Table of contents
+- Project overview
+- Motivation & goals
+- Key features
+- Architecture & components
+- Getting started (development)
+- Running a local demo
+- Configuration & environment variables
+- Testing & quality
+- Deployment (recommended approach)
+- Security & operational notes
+- Contributing
+- Roadmap
+- License & contact
+
 ---
 
-## Elevator pitch (one line)
-A lightweight collaborative coding interview tool with real‑time code sync, chat, and (optional) remote code execution — ideal for live technical interviews and take‑home review.
+## Project overview
 
-Why this is recruiter‑friendly
-- Demonstrates end‑to‑end engineering: frontend, backend, DB, realtime (socket.io), and integrations.
-- Covers important production concerns: auth (JWT), DB migrations (Prisma), execution isolation (external executor or mocked), and developer experience (Docker, scripts).
-- Easy to run locally for a quick demo during screening calls.
+InterviewFlow provides a collaborative environment for technical interviews where participants:
+- create and persist interview sessions,
+- edit code together in real time (Monaco Editor + Socket.io),
+- chat inside the session,
+- preview local video, and
+- run code via an external execution service (pluggable: mocked, public Piston, self‑hosted Piston, or Judge0).
+
+This repository is structured as a real project (not just a toy demo): it has backend services, database migrations (Prisma), developer scripts, and containerization-ready artifacts.
+
+Why this is a project (not a throwaway demo)
+- Design decisions are explicit (JWT auth, Prisma ORM, externalized execution for safety).
+- Infrastructure and deployment are considered: Docker + nginx patterns are supported and the codebase is structured for maintainability and testing.
+- The execution layer is pluggable and separated from the app to avoid unsafe sandboxing inside the primary process.
 
 ---
 
-## Tech stack
-- Frontend: React (Vite) + @monaco-editor/react + socket.io-client
-- Backend: Node.js + Express + Socket.io
-- Database: SQLite (Prisma ORM)
-- Code execution (optional): Piston (public or self‑hosted) or mocked executor
-- Dev infra: nodemon, Docker (optional), nginx (for proxying/self‑hosted piston)
-- Languages: JavaScript (Node & React)
+## Motivation & goals
+
+Primary objective
+- Build a robust, extensible collaborative coding platform that showcases practical engineering skills across frontend, backend, realtime systems, storage, and deployment.
+
+Secondary objectives
+- Keep the architecture production-approachable (easy to replace SQLite with Postgres, use managed execution providers, add CI/CD).
+- Maintain good developer experience (clear env, migrations, dev scripts).
+- Produce a project that can be shown to recruiters/engineering managers with minimal setup.
 
 ---
 
 ## Key features
-- User auth (register / login) using JWT
-- Create, list, open interview sessions
-- Real‑time collaborative code editing (socket.io + Monaco Editor)
-- Chat within a session
-- Local video preview (getUserMedia) with scaffolding for WebRTC signaling
-- Code execution API (mocked by default; can be wired to Piston or Judge0)
-- Persisted sessions via Prisma + SQLite
 
-What this demonstrates to recruiters
-- Real‑time systems and synchronization
-- Full‑stack engineering and pragmatic choices
-- Secure-ish execution architecture (delegates exec to external service)
-- Developer ergonomics (env, migrations, docker-ready)
+- User authentication (register / login) using JWT
+- Create, list, and open persistent interview sessions
+- Real‑time collaborative editing (Monaco Editor) via Socket.io rooms
+- In‑session chat messages (Socket.io)
+- Local video preview (getUserMedia) and foundation for WebRTC signaling
+- Pluggable code execution: mocked by default; can connect to Piston/Judge0 or a self‑hosted executor
+- Prisma for DB modeling and migrations
+- Developer scripts for common tasks (migrations, dev server)
 
 ---
 
-## Repo structure (high level)
-- backend/
-  - src/ — Express server, routes, socket.io, executor
-  - prisma/ — Prisma schema
-  - .env.example
-- frontend/
-  - src/ — React app, pages, components
-  - index.html, .env.local (Vite)
-- README.md — this file
+## Architecture & components
+
+- Frontend (Vite + React)
+  - Monaco editor integration
+  - Socket.io client for real-time events
+  - Auth UI and session management
+- Backend (Node.js + Express)
+  - REST endpoints for auth and session persistence
+  - Socket.io server for real‑time collaboration and signaling
+  - Executor module (external execution adapter / mock)
+- Database
+  - Prisma ORM; local SQLite for development with migration files
+- Optional infra
+  - Piston (execution) — public, self‑hosted, or other providers
+  - nginx for reverse proxy and API‑key enforcement (when self‑hosting executor)
+
+High-level flow
+1. User authenticates → receives JWT
+2. User creates/opens a session → backend persists session via Prisma
+3. On session open, client connects to Socket.io and joins session room
+4. Editor and chat events are broadcast to room members
+5. Run code → backend forwards code to configured executor (mock or remote) and returns stdout/stderr
 
 ---
 
-## Quick local demo (5–10 minutes)
+## Getting started (development)
 
-Prerequisites
+Prereqs
 - Node.js 18+ and npm
-- (Optional) Docker & docker-compose for a full stack container demo
-- (Optional) ngrok for exposing to the internet
+- git
+- (Optional) Docker & docker-compose for containerized workflow
 
-1. Start the backend
+Clone and install
 ```bash
+git clone https://github.com/<your-username>/InterviewFlow.git
 cd InterviewFlow/backend
 cp .env.example .env
-# edit .env if you want to enable real executor (PISTON_URL / PISTON_KEY)
+# inspect .env and change secrets if desired
 npm install
 npx prisma generate
 npx prisma migrate dev --name init
 npm run dev
 ```
 
-2. Start the frontend
+Frontend (in new terminal)
 ```bash
-# in a new terminal
-cd InterviewFlow/frontend
+cd ../frontend
 cat > .env.local <<'EOF'
 VITE_API_BASE=http://localhost:4000
 VITE_SOCKET_URL=http://localhost:4000
@@ -88,62 +123,40 @@ npm install
 npm run dev
 ```
 
-3. Open the app
-- Visit the Vite URL (usually http://localhost:5173)
-- Register / Login → Create a session → Open session
-- To demo collaboration: open the same session in another browser or Incognito and login again
-
-4. Run code
-- Click "Run (Python)" on the Session page:
-  - If `PISTON_URL` is NOT set in backend/.env → a safe mocked output is returned
-  - To enable real execution, set `PISTON_URL` to a working executor (e.g. public Piston) or self‑host Piston and set `PISTON_KEY` if required, then restart backend.
+Open the frontend URL printed by Vite (commonly http://localhost:5173). Register/login, create a session and open it to see the editor and chat.
 
 ---
 
-## Useful CLI commands (for reviewers / testers)
+## Running a local (developer) demo
 
-Register a user:
-```bash
-curl -s -X POST http://localhost:4000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"demo@example.com","password":"password123","name":"Demo"}'
-```
+- For fast, safe demos keep execution mocked:
+  - In `backend/.env` ensure:
+    ```
+    PISTON_URL=
+    PISTON_KEY=
+    ```
+  - Restart backend — runs return a mock output.
 
-Login and extract token (bash/sed):
-```bash
-TOKEN=$(curl -s -X POST http://localhost:4000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"demo@example.com","password":"password123"}' \
-  | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
-echo "$TOKEN"
-```
-
-Create a session:
-```bash
-curl -s -X POST http://localhost:4000/api/sessions \
- -H "Content-Type: application/json" \
- -H "Authorization: Bearer ${TOKEN}" \
- -d '{"title":"Interview Demo"}'
-```
-
-Execute code (session id 1):
-```bash
-curl -s -X POST http://localhost:4000/api/sessions/1/execute \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${TOKEN}" \
-  -d '{"language":"python","code":"print(2+3)"}'
-```
+- To enable real execution (for repeatable demos):
+  - Option A: Use public Piston (may be rate-limited)
+    ```
+    PISTON_URL=https://emkc.org/api/v2/piston/execute
+    PISTON_KEY=
+    ```
+  - Option B: Self‑host Piston behind nginx and enforce an API key:
+    - Deploy Piston (official image), put nginx in front to enforce X-API-Key or Authorization header and set `PISTON_URL` to the nginx endpoint and `PISTON_KEY` to the generated key.
+  - Restart backend to apply changes.
 
 ---
 
-## Dev notes / environment variables
+## Configuration & environment variables
 
 Backend (.env)
 - PORT=4000
-- JWT_SECRET=change_me_for_demo
+- JWT_SECRET=<your_jwt_secret>
 - DATABASE_URL="file:./dev.db"
-- PISTON_URL=    # leave empty to use mocked executor
-- PISTON_KEY=    # optional (used if your executor requires a key)
+- PISTON_URL=         # leave empty for mock executor
+- PISTON_KEY=         # optional (for self-hosted executor)
 
 Frontend (.env.local)
 - VITE_API_BASE=http://localhost:4000
@@ -151,53 +164,83 @@ Frontend (.env.local)
 
 ---
 
-## Execution service options
-- Mocked (default): safest for interviews — no external network required.
-- Public Piston endpoint: set PISTON_URL to `https://emkc.org/api/v2/piston/execute` (may be rate-limited/unreliable).
-- Self‑hosted Piston + nginx: recommended for repeated demos. You can place nginx in front to enforce a API key (set PISTON_KEY in `.env`) and configure executor to send `Authorization` or `X-API-Key` headers.
-- Judge0 or paid services: adapt executor to target their API and keys.
+## Testing & quality
+
+Unit & integration
+- Add unit tests for critical logic (auth helpers, executor adapter).
+- Add integration tests for REST endpoints and socket interactions (e.g., using supertest and socket.io-client).
+
+Suggested quick checks
+- API health: `curl http://localhost:4000/health`
+- Auth: register/login endpoints, ensure token returned
+- Socket: open two browser windows and confirm code and chat events sync
 
 ---
 
-## Troubleshooting quick list
-- 401 Invalid token: make sure the token exists (localStorage key `if_token`) and use `Authorization: Bearer <token>`.
-- Socket issues: ensure VITE_SOCKET_URL matches backend and both servers are reachable (CORS configured).
-- Port in use: kill existing process on 4000 or change PORT in `.env`.
-- Executor errors: check backend logs — executor prints request/response; ensure PISTON_URL is reachable if enabled.
+## Deployment (recommended approach)
+
+A minimal production deployment:
+- Replace SQLite with Postgres (update `DATABASE_URL`)
+- Deploy backend to a container host (Render, Heroku, AWS ECS, or a VPS)
+- Serve the built frontend as a static site (Vercel/Netlify) or via nginx
+- For execution:
+  - Prefer a managed provider (Judge0 cloud) OR self‑host Piston behind nginx with API key enforcement
+  - Never execute untrusted code inside the primary backend process
+
+Example steps
+1. Build & push Docker images (backend & frontend)
+2. Configure managed DB for production
+3. Set environment variables (JWT_SECRET, DATABASE_URL, PISTON_URL/KEY)
+4. Run migrations: `prisma migrate deploy`
+5. Scale and monitor logs/metrics
 
 ---
 
-## How to present this to recruiters/interviewers (2‑minute demo script)
-1. "I'll create a session and invite you — this persists a session record to the DB."
-2. "When you open the session we establish a socket room for real‑time updates."
-3. "Watch the editor and chat — changes propagate instantly between collaborators."
-4. "Now I'll run the code (either mocked or via a secure execution service) — output appears here."
-5. "We can persist the final code, export or review it later. Tech highlights: socket.io for realtime, Prisma for DB, externalized execution for safety."
+## Security & operational notes
 
-Talking points / skills to call out
-- Real-time engineering (socket rooms, events)
-- API design & authentication (JWT)
-- Pragmatic persistence (Prisma + SQLite for demo; easy to switch to Postgres)
-- Safe execution architecture (delegating to a sandboxed executor)
-- Infra readiness: Dockerizable, and easy to expose via ngrok or deploy to Render/Vercel
+- Execution isolation: externalize code execution to sandboxed service (Piston/Judge0) to avoid running untrusted code in the main app.
+- JWT secrets: rotate in production and use a secret management solution.
+- CORS & sockets: configure origins for production to avoid overly permissive settings.
+- Rate limiting: apply rate limits to auth and executor endpoints to avoid abuse.
+- Monitoring: collect logs for socket events and executor failures; instrument for errors.
 
 ---
 
-## Next improvements (good talking points)
-- Add STUN/TURN + full WebRTC peer connections for two‑way video
-- Add persistent participant presence with roles (interviewer/candidate)
-- Build a problem library and timed sessions
-- Add CI, unit tests, and e2e tests for the critical workflow
-- Replace SQLite with Postgres for production and add RBAC
+## Contributing
+
+Contributions are welcome. Suggested workflow:
+1. Fork the repository
+2. Create a feature branch `git checkout -b feat/short-description`
+3. Run tests locally and implement changes
+4. Open a pull request with a descriptive title and what you changed
+
+Areas where contributions are especially useful
+- Add tests and CI pipeline
+- Replace SQLite with Postgres in examples and platform scripts
+- Add a problem library UI and timed session support
+- Full WebRTC two‑way video using STUN/TURN configuration
+
+---
+
+## Roadmap
+
+Planned improvements
+- Full WebRTC peer-to-peer video with STUN/TURN and TURN server support
+- Role‑based participants (interviewer / candidate) and permissions
+- Export session artifacts (zip/gist) and session replay
+- Production deployment scripts (Terraform / Docker Compose for production)
+- CI + automated end‑to‑end tests
 
 
-## Author / Contact
-Project by: yukthapriya  
-GitHub: https://github.com/yukthapriya
 
-If you want, I can:
-- Add a Docker Compose for a single-command local demo (backend + piston + nginx + static frontend).
-- Add a deploy guide for Render/Vercel.
-- Create a short README tailored for non‑technical recruiters (one‑page pitch + screenshots).
+## Author & contact
 
-Tell me which of the above you'd like next and I will add it (Docker compose, deploy guide, or recruiter one‑pager).
+Author: yukthapriya  
+GitHub: https://github.com/yukthapriya  
+Email: use the contact details on my GitHub profile
+
+---
+
+## A note for reviewers
+
+If you run into any environment issues, check the `backend/.env` file for `DATABASE_URL` and `JWT_SECRET`, and confirm the backend is running before starting the frontend. If you’d like, I can add a `docker-compose.yml` that runs the full stack for a one‑command local deployment — open an issue or PR and I’ll include it.
