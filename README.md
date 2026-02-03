@@ -131,20 +131,7 @@ Open the frontend URL printed by Vite (commonly http://localhost:5173). Register
   - Restart backend to apply changes.
 
 ---
-flowchart LR
-  Browser["Browser\n(Candidate / Interviewer)"] -->|HTTP / WS| Frontend["Frontend\n(Vite + React)"]
-  Frontend -->|REST API| Backend["Backend\n(Node.js + Express)"]
-  Frontend -->|Socket.io (WS)| Backend
-  Backend -->|Prisma ORM| Database["Database\n(SQLite / Postgres)"]
-  Backend -->|HTTP (executor API)| Executor["Executor\n(Piston / Judge0 / Mock)"]
-  ReverseProxy["Nginx / Reverse Proxy"] -->|proxy| Backend
-  ReverseProxy -->|proxy / auth| Executor
-  subgraph Observability
-    Logs["Structured logs / tracing"]
-    Metrics["Prometheus\n/Grafana"]
-  end
-  Backend --> Logs
-  Backend --> Metrics
+![Architecture diagram](/docs/assets/architecture.svg)
 
 ## Configuration & environment variables
 
