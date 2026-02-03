@@ -2,7 +2,7 @@
 
 # InterviewFlow — Full-stack interview platform.
 
-# InterviewFlow
+
 
 InterviewFlow is a full‑stack collaborative coding platform designed as a production‑oriented project: session persistence, authenticated users, real‑time collaboration, chat, and an extensible code‑execution integration. It is intended as a buildable, maintainable project that demonstrates system design, engineering trade‑offs, and deployment readiness.
 
