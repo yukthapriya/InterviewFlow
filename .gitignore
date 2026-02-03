@@ -1,0 +1,4 @@
+# local env and build artifacts
+.env.production
+frontend/dist/
+frontend/node_modules/
