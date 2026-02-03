@@ -1,0 +1,29 @@
+# render.yaml - example to deploy to Render (edit repo/branch and set secrets in dashboard)
+services:
+  - type: web
+    name: interviewflow-backend
+    env: docker
+    region: oregon
+    repo: https://github.com/<your-username>/InterviewFlow
+    branch: main
+    dockerfilePath: backend/Dockerfile
+    autodeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      # Sensitive values: set in Render dashboard instead of here:
+      # JWT_SECRET, DATABASE_URL, PISTON_URL, PISTON_KEY
+
+staticSites:
+  - name: interviewflow-frontend
+    repo: https://github.com/<your-username>/InterviewFlow
+    branch: main
+    buildCommand: npm install && npm run build
+    publishPath: frontend/dist
+    envVars:
+      - key: VITE_API_BASE
+        value: "https://<backend-public-url>"
+      - key: VITE_SOCKET_URL
+        value: "wss://<backend-public-url>"
