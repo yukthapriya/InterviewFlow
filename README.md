@@ -8,23 +8,6 @@ InterviewFlow is a full‑stack collaborative coding platform designed as a prod
 
 Project status: Active — development and polish in progress.
 
-Table of contents
-- Project overview
-- Motivation & goals
-- Key features
-- Architecture & components
-- Getting started (development)
-- Running a local demo
-- Configuration & environment variables
-- Testing & quality
-- Deployment (recommended approach)
-- Security & operational notes
-- Contributing
-- Roadmap
-- License & contact
-
----
-
 ## Project overview
 
 InterviewFlow provides a collaborative environment for technical interviews where participants:
