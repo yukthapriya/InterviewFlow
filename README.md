@@ -131,24 +131,20 @@ Open the frontend URL printed by Vite (commonly http://localhost:5173). Register
   - Restart backend to apply changes.
 
 ---
-Architecture (Mermaid diagram)
------------------------------
-A compact architecture diagram (insert under Architecture in README). Paste this into the README so GitHub renders it via Mermaid (if supported) or use the diagram tool of choice.
-
-```mermaid
 flowchart LR
-  Browser -->|HTTP / WS| Frontend[Frontend (Vite + React)]
-  Frontend -->|REST| Backend[Backend (Node.js + Express)]
-  Frontend -->|Socket.io| Backend
-  Backend -->|Prisma| Database[(SQLite / Postgres)]
-  Backend -->|HTTP| Executor[Piston / Judge0 / Mock Executor]
-  ReverseProxy[Nginx / Reverse Proxy] --> Backend
-  ReverseProxy --> Executor
-  subgraph Observability
-    Backend --> Logs[Structured logs / tracing]
-    Backend --> Metrics[Prometheus metrics]
+  Browser["Browser / Candidate / Interviewer"] -->|HTTP / WS| Frontend["Frontend<br/>(Vite + React)"]
+  Frontend -->|REST API| Backend["Backend<br/>(Node.js + Express)"]
+  Frontend -->|Socket.io (WS)| Backend
+  Backend -->|Prisma ORM| Database["Database<br/>(SQLite / Postgres)"]
+  Backend -->|HTTP (executor API)| Executor["Executor<br/>(Piston / Judge0 / Mock)"]
+  ReverseProxy["Nginx / Reverse Proxy"] -->|proxy| Backend
+  ReverseProxy -->|proxy / auth| Executor
+  subgraph Observability["Observability"]
+    Logs["Structured logs / tracing"]
+    Metrics["Prometheus metrics / Grafana"]
   end
-```
+  Backend --> Logs
+  Backend --> Metrics
 
 ## Configuration & environment variables
 
