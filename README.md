@@ -223,7 +223,11 @@ GitHub: https://github.com/yukthapriya
 Email: use the contact details on my GitHub profile
 
 ---
-
+1. Capture screenshots (recommended names and locations):
+   - `frontend/screenshots/test 1.png`
+   - `frontend/screenshots/test 2.png`
+   - `frontend/screenshots/test 3.png`
+  
 ## A note for reviewers
 
 If you run into any environment issues, check the `backend/.env` file for `DATABASE_URL` and `JWT_SECRET`, and confirm the backend is running before starting the frontend. If you’d like, I can add a `docker-compose.yml` that runs the full stack for a one‑command local deployment — open an issue or PR and I’ll include it.
