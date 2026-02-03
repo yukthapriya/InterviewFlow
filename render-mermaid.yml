@@ -1,0 +1,26 @@
+name: Render Mermaid diagrams
+
+on:
+  push:
+    paths:
+      - 'docs/diagrams/**.mmd'
+      - '.github/render-mermaid.yml'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mermaid-cli
+        run: npm ci --no-audit --no-fund && npx -y @mermaid-js/mermaid-cli --version || true
+      - name: Render diagrams
+        run: |
+          mkdir -p docs/assets
+          for f in docs/diagrams/*.mmd; do
+            out="docs/assets/$(basename "${f%.*}").svg"
+            npx @mermaid-js/mermaid-cli -i "$f" -o "$out" || npx mmdc -i "$f" -o "$out"
+          done
+      - name: Commit diagrams
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Render Mermaid diagrams"
