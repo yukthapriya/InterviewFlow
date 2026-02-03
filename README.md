@@ -131,6 +131,24 @@ Open the frontend URL printed by Vite (commonly http://localhost:5173). Register
   - Restart backend to apply changes.
 
 ---
+Architecture (Mermaid diagram)
+-----------------------------
+A compact architecture diagram (insert under Architecture in README). Paste this into the README so GitHub renders it via Mermaid (if supported) or use the diagram tool of choice.
+
+```mermaid
+flowchart LR
+  Browser -->|HTTP / WS| Frontend[Frontend (Vite + React)]
+  Frontend -->|REST| Backend[Backend (Node.js + Express)]
+  Frontend -->|Socket.io| Backend
+  Backend -->|Prisma| Database[(SQLite / Postgres)]
+  Backend -->|HTTP| Executor[Piston / Judge0 / Mock Executor]
+  ReverseProxy[Nginx / Reverse Proxy] --> Backend
+  ReverseProxy --> Executor
+  subgraph Observability
+    Backend --> Logs[Structured logs / tracing]
+    Backend --> Metrics[Prometheus metrics]
+  end
+```
 
 ## Configuration & environment variables
 
