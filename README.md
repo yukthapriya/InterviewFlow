@@ -1,12 +1,12 @@
 
 
-# InterviewFlow — Full-stack interview platform (React + Node + Prisma + Socket.io).
+# InterviewFlow — Full-stack interview platform.
 
 
 
 InterviewFlow — a collaborative, real‑time coding interview platform built as a full‑stack demo.  
 Designed to showcase practical engineering skills (real‑time systems, auth, infra, and execution sandboxing) for recruiters and interviewers.
-
+(React + Node + Prisma + Socket.io)
 ---
 
 ## Elevator pitch (one line)
