@@ -29,6 +29,11 @@ jobs:
           VITE_SOCKET_URL: ${{ secrets.FRONTEND_SOCKET_URL }}
         run: |
           npm ci
+          # ensure build-time env vars exist for Vite (safe defaults if secrets missing)
+          cat > .env.production <<EOV
+VITE_API_BASE=${{ secrets.FRONTEND_API_BASE }}
+VITE_SOCKET_URL=${{ secrets.FRONTEND_SOCKET_URL }}
+EOV
           npm run build
 
       - name: Upload build artifact for GitHub Pages
