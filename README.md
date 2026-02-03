@@ -220,6 +220,7 @@ Planned improvements
 Author: yukthapriya  
 GitHub: https://github.com/yukthapriya  
 
+![Session](/screenshorts/session.png)
 
 Test screenshot 1  
 ![Test 1](/screenshorts/test%201.png)
